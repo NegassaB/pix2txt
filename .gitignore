@@ -1,0 +1,26 @@
+# config files
+config.txt
+
+# temp files
+.gitignore~
+
+# envs
+venv/
+
+# rope project settings
+
+# mypy
+.mypy_cache/
+
+# vscode files
+.vscode/
+
+# telethon session files
+*.session*
+
+# logs
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# other files
+*.db
