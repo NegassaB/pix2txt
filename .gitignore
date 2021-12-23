@@ -22,8 +22,12 @@ venv/
 *.session*
 
 # logs
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 
 # other files
 *.db
+
+# pix folder
+pix/
