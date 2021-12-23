@@ -7,6 +7,9 @@ config.txt
 # envs
 venv/
 
+# env files
+.env
+
 # rope project settings
 
 # mypy

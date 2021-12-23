@@ -1,5 +1,7 @@
+import enum
 import logging
 import time
+import os
 import sys
 
 # 3rd party libs
@@ -9,6 +11,11 @@ from telethon import (
     events,
     Button
 )
+from telethon.tl.types import InputMessagesFilterPhotos
+from dotenv import load_dotenv
+
+# my own
+from botter_helper import respond_error
 
 # enable logging
 logging.basicConfig(
@@ -20,15 +27,57 @@ logging.basicConfig(
 # get logger
 logger = logging.getLogger(__name__)
 
-api_id = None
-api_hash = None
-token = None
+load_dotenv()
 
-botter = TelegramClient('../pix2txt', api_id, api_hash).start(token)
+if not os.environ.get("API_ID"):
+    respond_error("unable to get env API_ID")
+if not os.environ.get("API_HASH"):
+    respond_error("unable to get env API_HASH")
+if not os.environ.get("TOKEN"):
+    respond_error("unable to get env TOKEN")
+else:
+    API_ID = os.environ.get("API_ID")
+    API_HASH = os.environ.get("API_HASH")
+    TOKEN = os.environ.get("TOKEN")
 
-# todo: get pic from user as inline
-# todo: send to OCR library on server
+
+botter = TelegramClient('../pix2txt', API_ID, API_HASH).start(bot_token=TOKEN)
+
+commands_dict = {
+    'start_cmd': "/start",
+    'help_cmd': "/help",
+}
+
+operation_status = dict()
+
+
+class States(enum.Enum):
+    START = enum.auto()
+    RECV_PIC = enum.auto()
+
+# todo: get pic from user
+# todo: handle forwarded pix as well
+# todo: store the image with some sort of id on the server
+# todo: give image to ocrspace https://github.com/ErikBoesen/ocrspace/blob/master/example.py
 # todo: return result as text & post to the group
+
+
+@botter.on(events.NewMessage)
+async def msg_event_handler(event):
+    # todo: on start get user's telegram id
+    # todo: insert into db perhaps
+    user_id = event.sender_id
+    if event.raw_text.lower() == "/start":
+        await event.respond(
+            f"hello {user_id} and welcome to pix2txt, please send the picture you wish to convert to text"
+        )
+        operation_status[user_id]['state'] = States.START
+    elif event.photo:
+        await event.reply("downloading and analyzing picture")
+        operation_status[user_id]['state'] = States.RECV_PIC
+    else:
+        await event.reply("You have to /start the bot")
+
 
 if __name__ == "__main__":
     with botter:
