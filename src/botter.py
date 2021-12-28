@@ -16,7 +16,7 @@ from telethon.tl.types import InputMessagesFilterPhotos
 from dotenv import load_dotenv
 
 # my own
-from botter_helper import (respond_error, convrt_return_txt)
+from botter_helper import (respond_error, convrt_return_txt, clean_up_pix)
 
 # enable logging
 logging.basicConfig(
@@ -101,7 +101,7 @@ async def pic_event_handler(event):
         await event.reply(convrt_return_txt(pic_file))
         await loading_gif.delete()
         logger.info(f"successfully sent extracted text to user_id {user_id} user_name {user_name}")
-        await event.respond("Done and Good Bye, if you want to use the bot again press /start")
+        clean_up_pix(pic_file)
         logger.info(f"user_id {user_id} user_name {user_name} is done")
 
 
@@ -124,27 +124,27 @@ async def get_id_user_name(event):
 
 if __name__ == "__main__":
     with botter:
-        logger.info(f"attempting to start the bot")
+        logger.info(f"starting the bot")
         try:
             botter.run_until_disconnected()
-            logger.info(f"successfully started the bot, starting operations")
         except errors.FloodWaitError as fwe:
             logger.exception(f"hit flood wait error -- {fwe}, gotta sleep for {fwe.seconds}", exc_info=True)
             time.sleep(fwe.seconds)
-            logger.info(f"attempting to start the bot")
+            logger.info(f"attempting to re-start the bot")
             botter.run_until_disconnected()
         except errors.FloodError as fe:
             logger.exception(f"hit flood error -- {fe} with message -- {fe.message}", exc_info=True)
             time.sleep(5000)
-            logger.info(f"attempting to start the bot")
+            logger.info(f"attempting to re-start the bot")
             botter.run_until_disconnected()
         except Exception as e:
             logger.exception(f"unable to start bot -- {e}", exc_info=True)
-            logger.info(f"attempting to start the bot")
+            logger.info(f"attempting to re-start the bot")
             botter.run_until_disconnected()
         except KeyboardInterrupt:
             logger.warning(f"received EXITCMD, exiting")
-            print("received EXITCMD, exiting")
             botter.disconnect()
             logger.info(f"bot disconnected, closing bot script")
             sys.exit(0)
+        else:
+            logger.info(f"successfully started the bot, starting operations")

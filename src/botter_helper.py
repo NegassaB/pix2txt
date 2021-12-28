@@ -1,4 +1,5 @@
 import sys
+import os
 import logging
 
 # 3rd party libs
@@ -23,8 +24,6 @@ def respond_error(error_details):
 
 
 def convrt_return_txt(pic_location):
-    # TEST_FILE = "pix/photo_2021-12-28_15-29-12.jpg"
-    # print(api.ocr_file(open(TEST_FILE, 'rb')))
     logger.info(f"extracting text from picture")
     try:
         output = api.ocr_file(open(pic_location, 'rb'))
@@ -34,3 +33,15 @@ def convrt_return_txt(pic_location):
     else:
         logger.info(f"successfully extracted text from picture, returning result to bot")
         return output
+
+
+def clean_up_pix(picture_file):
+    logger.info("attempting to delete picture file from server")
+    try:
+        os.remove(picture_file)
+    except Exception as e:
+        logger.error(f"unable to delete pic file -- {e}", exc_info=True)
+    else:
+        logger.info(f"successfully delete pic file {picture_file}")
+    finally:
+        return
