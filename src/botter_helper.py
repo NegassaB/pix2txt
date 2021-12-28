@@ -25,12 +25,12 @@ def respond_error(error_details):
 def convrt_return_txt(pic_location):
     # TEST_FILE = "pix/photo_2021-12-28_15-29-12.jpg"
     # print(api.ocr_file(open(TEST_FILE, 'rb')))
+    logger.info(f"extracting text from picture")
     try:
         output = api.ocr_file(open(pic_location, 'rb'))
     except Exception as e:
-        logger.error(f"{e}", exc_info=True)
-        raise "SOMETHING WENT WRONG, PLEASE TRY AGAIN"
+        logger.error(f"unable to extract text from picture -- {e}", exc_info=True)
+        return "SOMETHING WENT WRONG, PLEASE TRY AGAIN"
     else:
+        logger.info(f"successfully extracted text from picture, returning result to bot")
         return output
-    finally:
-        pass
