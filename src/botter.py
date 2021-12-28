@@ -16,7 +16,7 @@ from telethon.tl.types import InputMessagesFilterPhotos
 from dotenv import load_dotenv
 
 # my own
-from botter_helper import respond_error
+from botter_helper import (respond_error, convrt_return_txt)
 
 # enable logging
 logging.basicConfig(
@@ -57,6 +57,7 @@ class States(enum.Enum):
     START = enum.auto()
     RECV_PIC = enum.auto()
     AWAIT_RESULT = enum.auto()
+    END = enum.auto()
 
 # todo: get pic from user
 # todo: handle forwarded pix as well
@@ -84,18 +85,19 @@ async def msg_event_handler(event):
             if event.photo:
                 # hack: has id attribute for the pic use it to distinguish pic files
                 # hack: download pic file, give to ocr lib return result
-                await event.reply("downloading and analyzing picture, please WAIT")
+                await event.reply("downloading and analyzing picture, PLEASE WAIT")
                 operation_status[user_id]['state'] = States.AWAIT_RESULT
                 pic_file = await botter.download_media(event.photo, file="pix/")
                 if not pic_file:
-                    await event.reply("Please send a picture file, nothing else")
+                    await event.reply("Please send a picture file you wish to convert to text, nothing else")
                     await event.delete()
-                    operation_status[user_id]['state'] == States.RECV_PIC
+                    operation_status[user_id]['state'] = States.RECV_PIC
                 else:
+                    await event.respond('loading.gif')
                     # hack: give image to ocrspace https://github.com/ErikBoesen/ocrspace/blob/master/example.py
-                    print(type(pic_file))
-                    # with open(f'pix/{event.photo.id}', 'w') as pic_writer:
-                    #     pic_writer.write(pic_file)
+                    result_txt = convrt_return_txt(pic_file)
+                    await event.reply(result_txt)
+                    operation_status[user_id]['state'] = States.END
             else:
                 await event.reply("Please send a picture file, nothing else")
                 await event.delete()
