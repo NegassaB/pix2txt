@@ -44,81 +44,107 @@ else:
 
 botter = TelegramClient('../pix2txt', API_ID, API_HASH).start(bot_token=TOKEN)
 
-commands_dict = {
-    'start_cmd': "/start",
-    'help_cmd': "/help",
-    'convert_pic': "/convert_pic",
-}
-
-operation_status = dict()
-
-
-class States(enum.Enum):
-    START = enum.auto()
-    RECV_PIC = enum.auto()
-    AWAIT_RESULT = enum.auto()
-    END = enum.auto()
-
 # hack: handle forwarded pix as well
 # todo: clean up operation in the pix folder
 
 
-@botter.on(events.NewMessage)
-async def msg_event_handler(event):
-    user_id = event.sender_id
-    if event.raw_text.lower() == commands_dict['start_cmd']:
-        await event.respond(
-            f"hello {user_id} and welcome to pix2txt, please send /convert_pic"
-        )
-        operation_status[user_id] = {'state': States.START}
-    elif event.raw_text.lower() == commands_dict['help_cmd']:
-        await event.respond(
-            "@pix2txt_bot can extract texts from pictures. To start using it, send /start "\
-            "and follow the directions provided by the bot. Use /help to display this helpful message."
-        )
-    elif user_id in operation_status.keys():
-        current_state = operation_status[user_id]['state']
-        if event.raw_text.lower() == commands_dict['convert_pic']:
-            await event.reply("Please send the picture you wish to convert to text")
-            operation_status[user_id]['state'] = States.RECV_PIC
-        elif current_state == States.RECV_PIC:
-            if event.photo:
-                operation_status[user_id]['state'] = States.AWAIT_RESULT
-                pic_file = await botter.download_media(event.photo, file="pix/")
-                if not pic_file:
-                    await event.reply("Please send a picture file you wish to convert to text, nothing else")
-                    await event.delete()
-                    operation_status[user_id]['state'] = States.RECV_PIC
-                else:
-                    loading_gif = await event.reply("downloading and analyzing picture, PLEASE WAIT", file='loading.gif')
-                    await event.reply(convrt_return_txt(pic_file))
-                    await loading_gif.delete()
-                    operation_status[user_id]['state'] = States.END
-                    await event.respond("Done and Good Bye, if you want to use the bot again press /start")
-            else:
-                await event.reply("Please send a picture file, nothing else")
-                await event.delete()
-                operation_status[user_id]['state'] == States.RECV_PIC
+@botter.on(events.NewMessage(incoming=True, pattern="/start"))
+async def start_event_handler(event):
+    user_id, user_name = await get_id_user_name(event)
+    logger.info(f"user_id {user_id} user_name {user_name} has started the bot")
+    await event.respond(f"hello **{user_name}** and welcome to pix2txt, please send a picture to extract the text.")
+
+
+@botter.on(events.NewMessage(incoming=True, pattern="/help"))
+async def help_event_handler(event):
+    user_id, user_name = await get_id_user_name(event)
+    logger.info(f"user_id {user_id} user_name {user_name} has clicked /help")
+    await event.respond(
+        "@pix2txt_bot can extract texts from pictures. "\
+        "__Just send a picture as you normally would and the bot will do the rest.__"\
+        "\n\nTo start using it, send /start and follow the directions provided by the bot."\
+        "\n\nUse /help to display this helpful message."\
+    )
+
+
+async def check_pic(event):
+    user_id, user_name = await get_id_user_name(event)
+    logger.info(f"checking if user_id {user_id} user_name {user_name} sent a picture")
+    if event.photo:
+        return True
+    elif event.raw_text.lower() == "/start":
+        return False
+    elif event.raw_text.lower() == "/help":
+        return False
     else:
-        await event.reply("You have to /start the bot")
+        await event.reply(
+            f"**{user_name}** you sent an __Unknown command__, please use the provided commands, "\
+            "if you are experiencing difficulties using the press /help"
+        )
+        return False
+
+
+@botter.on(events.NewMessage(incoming=True, func=check_pic))
+async def pic_event_handler(event):
+    user_id, user_name = await get_id_user_name(event)
+    logger.info(f"checking if user_id {user_id} user_name {user_name} did send a picture")
+    pic_file = await botter.download_media(event.photo, file="pix/")
+    logger.info(f"downloading picture sent by user_id {user_id} user_name {user_name}")
+    if not pic_file:
+        logger.warning(f"user_id {user_id} user_name {user_name} didn't send a proper picture")
+        await event.reply("Please send a picture file you wish to convert to text, nothing else")
+        await event.delete()
+    else:
+        logger.info(f"user_id {user_id} user_name {user_name} has sent a proper picture")
+        loading_gif = await event.reply("downloading and analyzing picture, PLEASE WAIT", file='loading.gif')
+        logger.info(f"sent loading_gif to user_id {user_id} user_name {user_name}")
+        await event.reply(convrt_return_txt(pic_file))
+        await loading_gif.delete()
+        logger.info(f"successfully sent extracted text to user_id {user_id} user_name {user_name}")
+        await event.respond("Done and Good Bye, if you want to use the bot again press /start")
+        logger.info(f"user_id {user_id} user_name {user_name} is done")
+
+
+async def get_id_user_name(event):
+    user_id, user_name = None, None
+    logger.info(f"extracting user_id and user_name from event")
+    if event.chat.username:
+        logger.info(f"username exists {event.chat.username}")
+        user_name = event.chat.username
+    elif event.chat.first_name:
+        logger.info(f"username DOESN'T exists, using first_name instead {event.chat.first_name}")
+        user_name = event.chat.first_name
+    else:
+        logger.info(f"neither username nor first_name exist, using unknown username instead")
+        user_name = "unknown username"
+    user_id = event.sender_id
+    logger.info(f"successfully retrieved user_id {user_id} and user_name {user_name}")
+    return user_id, user_name
 
 
 if __name__ == "__main__":
     with botter:
+        logger.info(f"attempting to start the bot")
         try:
             botter.run_until_disconnected()
+            logger.info(f"successfully started the bot, starting operations")
         except errors.FloodWaitError as fwe:
             logger.exception(f"hit flood wait error -- {fwe}, gotta sleep for {fwe.seconds}", exc_info=True)
             time.sleep(fwe.seconds)
+            logger.info(f"attempting to start the bot")
             botter.run_until_disconnected()
         except errors.FloodError as fe:
             logger.exception(f"hit flood error -- {fe} with message -- {fe.message}", exc_info=True)
             time.sleep(5000)
+            logger.info(f"attempting to start the bot")
             botter.run_until_disconnected()
         except Exception as e:
             logger.exception(f"unable to start bot -- {e}", exc_info=True)
+            logger.info(f"attempting to start the bot")
             botter.run_until_disconnected()
         except KeyboardInterrupt:
+            logger.warning(f"received EXITCMD, exiting")
             print("received EXITCMD, exiting")
             botter.disconnect()
+            logger.info(f"bot disconnected, closing bot script")
             sys.exit(0)
