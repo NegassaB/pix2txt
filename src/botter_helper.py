@@ -25,4 +25,12 @@ def respond_error(error_details):
 def convrt_return_txt(pic_location):
     # TEST_FILE = "pix/photo_2021-12-28_15-29-12.jpg"
     # print(api.ocr_file(open(TEST_FILE, 'rb')))
-    return api.ocr_file(open(pic_location, 'rb'))
+    try:
+        output = api.ocr_file(open(pic_location, 'rb'))
+    except Exception as e:
+        logger.error(f"{e}", exc_info=True)
+        raise "SOMETHING WENT WRONG, PLEASE TRY AGAIN"
+    else:
+        return output
+    finally:
+        pass

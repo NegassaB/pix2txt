@@ -59,10 +59,8 @@ class States(enum.Enum):
     AWAIT_RESULT = enum.auto()
     END = enum.auto()
 
-# todo: get pic from user
-# todo: handle forwarded pix as well
-# todo: store the image with some sort of id on the server
-# todo: return result as text & post to the group
+# hack: handle forwarded pix as well
+# todo: clean up operation in the pix folder
 
 
 @botter.on(events.NewMessage)
@@ -74,8 +72,10 @@ async def msg_event_handler(event):
         )
         operation_status[user_id] = {'state': States.START}
     elif event.raw_text.lower() == commands_dict['help_cmd']:
-        # todo: insert helpful message here
-        pass
+        await event.respond(
+            "@pix2txt_bot can extract texts from pictures. To start using it, send /start "\
+            "and follow the directions provided by the bot. Use /help to display this helpful message."
+        )
     elif user_id in operation_status.keys():
         current_state = operation_status[user_id]['state']
         if event.raw_text.lower() == commands_dict['convert_pic']:
@@ -83,9 +83,6 @@ async def msg_event_handler(event):
             operation_status[user_id]['state'] = States.RECV_PIC
         elif current_state == States.RECV_PIC:
             if event.photo:
-                # hack: has id attribute for the pic use it to distinguish pic files
-                # hack: download pic file, give to ocr lib return result
-                await event.reply("downloading and analyzing picture, PLEASE WAIT")
                 operation_status[user_id]['state'] = States.AWAIT_RESULT
                 pic_file = await botter.download_media(event.photo, file="pix/")
                 if not pic_file:
@@ -93,17 +90,15 @@ async def msg_event_handler(event):
                     await event.delete()
                     operation_status[user_id]['state'] = States.RECV_PIC
                 else:
-                    await event.respond('loading.gif')
-                    # hack: give image to ocrspace https://github.com/ErikBoesen/ocrspace/blob/master/example.py
-                    result_txt = convrt_return_txt(pic_file)
-                    await event.reply(result_txt)
+                    loading_gif = await event.reply("downloading and analyzing picture, PLEASE WAIT", file='loading.gif')
+                    await event.reply(convrt_return_txt(pic_file))
+                    await loading_gif.delete()
                     operation_status[user_id]['state'] = States.END
+                    await event.respond("Done and Good Bye, if you want to use the bot again press /start")
             else:
                 await event.reply("Please send a picture file, nothing else")
                 await event.delete()
                 operation_status[user_id]['state'] == States.RECV_PIC
-        # elif current_state == States.AWAIT_RESULT:
-        #     pass
     else:
         await event.reply("You have to /start the bot")
 
