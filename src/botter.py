@@ -45,7 +45,6 @@ else:
 botter = TelegramClient('../pix2txt', API_ID, API_HASH).start(bot_token=TOKEN)
 
 # hack: handle forwarded pix as well
-# todo: clean up operation in the pix folder
 
 
 @botter.on(events.NewMessage(incoming=True, pattern="/start"))
@@ -60,10 +59,10 @@ async def help_event_handler(event):
     user_id, user_name = await get_id_user_name(event)
     logger.info(f"user_id {user_id} user_name {user_name} has clicked /help")
     await event.respond(
-        "@pix2txt_bot can extract texts from pictures. "\
-        "__Just send a picture as you normally would and the bot will do the rest.__"\
-        "\n\nTo start using it, send /start and follow the directions provided by the bot."\
-        "\n\nUse /help to display this helpful message."\
+        "@pix2txt_bot can extract texts from pictures. "
+        "__Just send a picture as you normally would and the bot will do the rest.__"
+        "\n\nTo start using it, send /start and follow the directions provided by the bot."
+        "\n\nUse /help to display this helpful message."
     )
 
 
