@@ -56,7 +56,7 @@ async def help_event_handler(event):
         "@pix2txt_bot can extract texts from pictures. "
         "__Just send a picture as you normally would and the bot will do the rest.__"
         "\n\nTo start using it, send /start and follow the directions provided by the bot."
-        "\n\nUse /help to display this helpful message.\N\NIt only recognizes LATIN characters."
+        "\n\nUse /help to display this helpful message.\n\nIt only recognizes LATIN characters."
     )
 
 
