@@ -44,8 +44,6 @@ else:
 
 botter = TelegramClient('../pix2txt', API_ID, API_HASH).start(bot_token=TOKEN)
 
-# hack: handle forwarded pix as well
-
 
 @botter.on(events.NewMessage(incoming=True, pattern="/start"))
 async def start_event_handler(event):
