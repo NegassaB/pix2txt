@@ -1,5 +1,3 @@
-import asyncio
-import enum
 import logging
 import time
 import os
@@ -9,10 +7,8 @@ import sys
 from telethon import (
     TelegramClient,
     errors,
-    events,
-    Button
+    events
 )
-from telethon.tl.types import InputMessagesFilterPhotos
 from dotenv import load_dotenv
 
 # my own
