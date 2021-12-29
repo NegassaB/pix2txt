@@ -37,6 +37,8 @@ def convrt_return_txt(pic_location):
         else:
             logger.error(f"The OUTPUT is None -- {output}, something definitely went wrong", exc_info=True)
             return "SOMETHING WENT WRONG, PLEASE TRY AGAIN"
+    finally:
+        clean_up_pix(pic_location)
 
 
 def clean_up_pix(picture_file):
