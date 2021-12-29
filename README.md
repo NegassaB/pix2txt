@@ -30,4 +30,4 @@ Optical Character Recognition (OCR) [telegram](https://telegram.org/) bot built 
         API_ID = xxxxxx
         API_HASH = xxxxxxxx
 
-6. run it just as any python application by ```python botter.py```
+6. run it just as any python application by ```python src/botter.py```
