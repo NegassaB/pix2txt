@@ -16,7 +16,7 @@ Optical Character Recognition (OCR) [telegram](https://telegram.org/) bot built 
 
 ## how to run
 
-1. create a virtual environment and install -- upgrade if you wish -- all dependencies found inside requirements.txt by doing ```pip install -r -U requirements.txt```
+1. create a virtual environment, source it and install -- upgrade if you wish -- all dependencies found inside requirements.txt by doing ```pip install -r -U requirements.txt```
 
 2. get your own API_ID & API_HASH from <https://my.telegram.org/auth>
 
