@@ -1,6 +1,6 @@
 # pix2txt
 
-Optical Character Recognition (OCR) [telegram]((https://telegram.org/)) bot built using python that extracts texts found inside pictures.
+Optical Character Recognition (OCR) [telegram](https://telegram.org/) bot built using python that extracts texts found inside pictures.
 
 ## usage
 
