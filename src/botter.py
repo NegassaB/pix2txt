@@ -77,7 +77,7 @@ async def check_pic(event):
         return False
     else:
         await event.reply(
-            f"**{user_name}** you sent an __Unknown command__, please use the provided commands, "\
+            f"**{user_name}** you sent an __Unknown command__, please use the provided commands,"
             "if you are experiencing difficulties using the press /help"
         )
         return False
