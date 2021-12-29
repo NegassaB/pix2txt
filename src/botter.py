@@ -72,7 +72,7 @@ async def check_content(event):
     else:
         await event.reply(
             f"**{user_name}** you sent an __Unknown command__, please use the provided commands,"
-            "if you are experiencing difficulties using the press /help"
+            "if you are experiencing difficulties using the bot press /help"
         )
         return False
 
