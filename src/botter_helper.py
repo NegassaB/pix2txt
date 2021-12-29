@@ -31,8 +31,12 @@ def convrt_return_txt(pic_location):
         logger.error(f"unable to extract text from picture -- {e}", exc_info=True)
         return "SOMETHING WENT WRONG, PLEASE TRY AGAIN"
     else:
-        logger.info(f"successfully extracted text from picture, returning result to bot")
-        return output
+        if output:
+            logger.info(f"successfully extracted text from picture, returning result to bot")
+            return output
+        else:
+            logger.error(f"The OUTPUT is None -- {output}, something definitely went wrong", exc_info=True)
+            return "SOMETHING WENT WRONG, PLEASE TRY AGAIN"
 
 
 def clean_up_pix(picture_file):
