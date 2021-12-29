@@ -66,7 +66,7 @@ async def help_event_handler(event):
     )
 
 
-async def check_pic(event):
+async def check_content(event):
     user_id, user_name = await get_id_user_name(event)
     logger.info(f"checking if user_id {user_id} user_name {user_name} sent a picture")
     if event.photo:
@@ -83,7 +83,7 @@ async def check_pic(event):
         return False
 
 
-@botter.on(events.NewMessage(incoming=True, func=check_pic))
+@botter.on(events.NewMessage(incoming=True, func=check_content))
 async def pic_event_handler(event):
     user_id, user_name = await get_id_user_name(event)
     logger.info(f"checking if user_id {user_id} user_name {user_name} did send a picture")
