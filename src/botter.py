@@ -94,7 +94,6 @@ async def pic_event_handler(event):
         await event.reply(convrt_return_txt(pic_file))
         await loading_gif.delete()
         logger.info(f"successfully sent extracted text to user_id {user_id} user_name {user_name}")
-        clean_up_pix(pic_file)
         logger.info(f"user_id {user_id} user_name {user_name} is done")
 
 
