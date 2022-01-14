@@ -29,7 +29,6 @@ def convrt_return_txt(pic_location):
         output = api.ocr_file(open(pic_location, 'rb'))
     except Exception as e:
         logger.error(f"unable to extract text from picture -- {e}", exc_info=True)
-        clean_up_pix(pic_location)
         return "SOMETHING WENT WRONG, PLEASE TRY AGAIN"
     else:
         if output:
