@@ -38,7 +38,7 @@ else:
     TOKEN = os.environ.get("TOKEN")
 
 
-botter = TelegramClient('../pix2txt', API_ID, API_HASH).start(bot_token=TOKEN)
+botter = TelegramClient('pix2txt', API_ID, API_HASH).start(bot_token=TOKEN)
 
 
 @botter.on(events.NewMessage(incoming=True, pattern="/start"))
