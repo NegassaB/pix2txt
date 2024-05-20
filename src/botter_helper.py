@@ -8,8 +8,9 @@ import ocrspace
 # enable logging
 logging.basicConfig(
     # filename=f"log {__name__} pix2txt_bot.log",
-    format='%(asctime)s - %(funcName)s - %(levelname)s - %(message)s',
-    level=logging.INFO
+    format="%(asctime)s - %(funcName)s - %(levelname)s - %(message)s",
+    # level=logging.INFO
+    level=logging.DEBUG,
 )
 
 # get logger
@@ -24,18 +25,23 @@ def respond_error(error_details):
 
 
 def convrt_return_txt(pic_location):
-    logger.info(f"extracting text from picture")
+    logger.info("extracting text from picture")
     try:
-        output = api.ocr_file(open(pic_location, 'rb'))
+        output = api.ocr_file(open(pic_location, "rb"))
     except Exception as e:
         logger.error(f"unable to extract text from picture -- {e}", exc_info=True)
         return "SOMETHING WENT WRONG, PLEASE TRY AGAIN"
     else:
         if output:
-            logger.info(f"successfully extracted text from picture, returning result to bot")
+            logger.info(
+                "successfully extracted text from picture, returning result to bot"
+            )
             return output
         else:
-            logger.error(f"The OUTPUT is None -- {output}, something definitely went wrong", exc_info=True)
+            logger.error(
+                f"The OUTPUT is None -- {output}, something definitely went wrong",
+                exc_info=True,
+            )
             return "SOMETHING WENT WRONG, PLEASE TRY AGAIN"
     finally:
         clean_up_pix(pic_location)
